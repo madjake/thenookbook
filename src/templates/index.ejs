@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Nookbook - Unofficial Animal Crossing New Horizons Database</title>
+    <meta name="description" content="Search <%= totalNumItems.toLocaleString() %> Animal Crossing New Horizon items, residents, achievements, and more">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        background-color: #FEFEFE;
+        color: #000;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        position: relative;
+      }
+      
+      .pageContainer {
+        position: relative;
+        min-height: 100vh;
+      }
+
+      .contentWrapper {
+        padding-bottom: 2rem;
+      }
+
+      .pageFooter {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+      }
+
+      a {
+        color: blue; 
+      }
+
+      ul#itemList li div {
+        width: 128px;
+        font-size: 12px;
+        text-align: center;
+        overflow-wrap: break-word;
+      }
+
+      ul#itemList li {
+        display: inline;
+        display: inline-block;
+      }
+
+      ul#itemList li img {
+        width: 128px;
+        height: 128px;
+      }
+
+      #siteNav ul li a {
+        padding: 5px;
+      }
+
+      #autoComplete:hover {
+
+      }
+      #autoComplete {
+        position: relative;
+        padding: 0 2rem 0 3.5rem;
+        height: 2.1rem;
+        width: 80%;
+        font-size: 1.2rem;
+        outline: 0;
+        border-radius: 50rem;
+        border: .05rem solid #ff7a7a;
+        caret-color: #ff7a7a;
+        color: #0F0F0F;
+      }
+
+      table {
+        table-layout: fixed;
+      }
+      </style>
+  </head>
+  <body>
+    <div class="pageContainer">
+      <div class="contentWrapper">
+        <div id="siteNav">
+          <div>
+            <label>The Nookbook Database: <input id="autoComplete" name="nooksearch" placeholder="Search ..."></label>
+          </div>
+          <ul>
+          <% Object.values(categories).forEach(function (category) { %>
+            <li style="display: inline;"><a href="/category/<%= category.slug %>"><%= category.name %></a></li>
+          <% }); %>
+          </ul>
+          <hr>
+        </div>
+        <% if (categoryName) { %>
+        <h1>Showing <%= totalNumItems.toLocaleString() %> <%= categoryName %> items</h2>
+        <% } else { %>
+        <h1>Search <%= totalNumItems.toLocaleString() %> Animal Crossing New Horizon items, residents, achievements, and more</h2>
+        <% } %>
+        <ul id="itemList">
+          <% if (gameItems && gameItems.length) { %>
+            <% gameItems.forEach(function (item) { %>
+              <% if (item && item.Image) { %>
+              <li><div><%= item.fullName %></div><img src="<%= item.Image %>" title="<%= item.fullName %>"></img></li>
+              <% } %>
+            <% }); %>
+          <% } %>
+        </ul>
+      </div>
+      <footer class="pageFooter">
+        <div>Created by <a href="https://github.com/madjake">Jake Fournier</a>. <a href="https://www.linkedin.com/in/jakefournier/">Hire me</a></div>
+        <div>The data used to power this website is sourced by the community. THANK YOU! <a href="https://docs.google.com/spreadsheets/d/13d_LAJPlxMa_DubPTuirkIV4DERBMXbrWQsmSh8ReK4/">View the Data</a></div>
+      </footer>
+    </div>
+    <script src="/static/autocomplete.min.js"></script>
+    <script>
+      var resultsTable = document.getElementById('itemList');
+
+      function addResultRow(item) {
+        if (item.Image) {
+          var li = document.createElement('li');
+          var div = document.createElement('div');
+          var img = document.createElement('img');
+          
+          div.innerHTML = item.fullName;
+          img.src = item.Image;
+          img.title = item.fullName;
+
+          li.appendChild(div);
+          li.appendChild(img);
+          resultsTable.appendChild(li);
+        }
+      }
+      
+      function updateHeader(searchQuery, numResults) {
+        document.getElementsByTagName('h1')[0].innerHTML = 'Found ' + numResults + ' matching <span class="search-query">' + searchQuery + '</span>';
+      }
+
+      new autoComplete({
+          data: {                              // Data src [Array, Function, Async] | (REQUIRED)
+            src: async () => {
+              const query = document.querySelector("#autoComplete").value;
+              const source = await fetch(`/api/search/${query}`);
+              const data = await source.json();
+  
+              if (data.length > 0) {
+                document.getElementById('itemList').innerHTML = '';
+
+                for (var i in data) {
+                  var item = data[i];
+                  addResultRow(item);            
+                }
+
+                window.history.pushState({"pageTitle": data.length + " results matching " + query}, "", '/search/' + query);
+                updateHeader(query, data.length);
+              }
+
+              return data;
+            },
+            key: ["fullName"],
+            cache: false
+          },
+          resultsList: {                       // Rendered results list object      | (Optional)
+            render: false,
+            container: source => {
+                source.setAttribute("id", "item_list");
+            },
+            destination: document.querySelector("#autoComplete"),
+            position: "afterend",
+            element: "ul"
+          },
+          sort: (a, b) => {                    // Sort rendered results ascendingly | (Optional)
+            if (a.match < b.match) return -1;
+            if (a.match > b.match) return 1;
+            return 0;
+          },
+          placeHolder: "Search for things ...",     // Place Holder text                 | (Optional)
+          selector: "#autoComplete",           // Input field selector              | (Optional)
+          threshold: 3,                        // Min. Chars length to start Engine | (Optional)
+          debounce: 300,                       // Post duration for engine to start | (Optional)
+          searchEngine: "strict",              // Search Engine type/mode           | (Optional)
+          maxResults: 5,                         // Max. number of rendered results | (Optional)
+          highlight: true,                       // Highlight matching results      | (Optional)
+          noResults: () => {                     // Action script on noResults      | (Optional)
+            const result = document.createElement("li");
+            result.setAttribute("class", "no_result");
+            result.setAttribute("tabindex", "1");
+            result.innerHTML = "No Results";
+            document.querySelector("#autoComplete_list").appendChild(result);
+          }
+      });
+/*      
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('service-worker.js');
+      }*/
+    </script>
+  </body>
+</html>

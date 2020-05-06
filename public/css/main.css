@@ -1,0 +1,50 @@
+body {
+  background-color: #FEFEFE;
+  color: #000;
+}
+
+a {
+  color: blue; 
+}
+
+ul#itemList li div {
+  width: 128px;
+  font-size: 12px;
+  text-align: center;
+  overflow-wrap: break-word;
+}
+
+ul#itemList li {
+  display: inline;
+  padding: 5px;
+  display: inline-block;
+}
+
+ul#itemList li img {
+  width: 128px;
+  height: 128px;
+}
+
+ul#sitenav li {
+  padding: 0 5px;
+}
+
+#autoComplete:hover {
+
+}
+#autoComplete {
+  position: relative;
+  padding: 0 2rem 0 3.5rem;
+  height: 2.1rem;
+  width: 50rem;
+  font-size: 1.2rem;
+  outline: 0;
+  border-radius: 50rem;
+  border: .05rem solid #ff7a7a;
+  caret-color: #ff7a7a;
+  color: #0F0F0F;
+}
+
+table {
+  table-layout: fixed;
+}

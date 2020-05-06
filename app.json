@@ -1,0 +1,6 @@
+{
+  "name": "The Nookbook Animal Crossing Database",
+  "description": "A database of Animal Crossing New Horizons items",
+  "keywords": ["node", "fastify", "heroku", "Animal Crossing New Horizons"],
+  "image": "heroku/nodejs"
+}
