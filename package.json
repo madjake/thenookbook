@@ -25,7 +25,7 @@
     "fastify-helmet": "^3.0.2",
     "fastify-static": "^2.6.0",
     "point-of-view": "^3.7.1",
-    "xlsx": "^0.15.6"
+    "xlsx": "^0.17.0"
   },
   "keywords": [
     "node",
